@@ -9,19 +9,16 @@ module.exports = {
   attributes: {
     username: {
       type: 'string',
-      unique: true
-    },
-    displayName: {
-      type: 'string'
-    },
-    pic: {
-      type: 'string',
-      isURL: true
+      unique: true,
+      // sails disc only
+      required: true
     },
     email: {
       type: 'string',
       unique: true,
-      isEmail: true
+      isEmail: true,
+      // sails disc only
+      required: true
     },
     password: {
       type: 'string',
@@ -48,6 +45,40 @@ module.exports = {
     resetPasswordExpireOn: {
       type: 'number',
       defaultsTo: 0
+    },
+    /**
+     * Associations
+     */
+    profiles: {
+      collection: 'profile',
+      via: 'user'
+    },
+    votes: {
+      collection: 'vote',
+      via: 'user'
+    },
+    votedSimplified: {
+      collection: 'simplified',
+      via: 'user',
+      through: 'vote'
+    },
+    changes: {
+      collection: 'change',
+      via: 'user'
+    },
+    commitedChanges: {
+      collection: 'change',
+      via: 'commitedBy'
+    },
+    changesOnSimplified: {
+      collection: 'simplified',
+      via: 'user',
+      through: 'change'
+    },
+    changesOnTldr: {
+      collection: 'tldr',
+      via: 'user',
+      through: 'change'
     }
   }
 }

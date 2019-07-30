@@ -8,6 +8,7 @@
  * For more information on configuration, check out:
  * https://sailsjs.com/config/http
  */
+const passport = require('passport')
 
 module.exports.http = {
 
@@ -29,32 +30,34 @@ module.exports.http = {
     *                                                                          *
     ***************************************************************************/
 
-    // order: [
-    //   'cookieParser',
-    //   'session',
-    //   'bodyParser',
-    //   'compress',
-    //   'poweredBy',
-    //   'router',
-    //   'www',
-    //   'favicon',
-    // ],
+    order: [
+      'cookieParser',
+      'session',
+      'bodyParser',
+      'compress',
+      'findOrCreateProfile',
+      'passportInitialize',
+      'passportSession',
+      'router',
+      'www',
+      'favicon'
+    ],
 
-
-    /***************************************************************************
-    *                                                                          *
-    * The body parser that will handle incoming multipart HTTP requests.       *
-    *                                                                          *
-    * https://sailsjs.com/config/http#?customizing-the-body-parser             *
-    *                                                                          *
-    ***************************************************************************/
-
-    // bodyParser: (function _configureBodyParser(){
-    //   var skipper = require('skipper');
-    //   var middlewareFn = skipper({ strict: true });
-    //   return middlewareFn;
-    // })(),
-
-  },
-
-};
+    passportInitialize: passport.initialize(),
+    passportSession: passport.session(),
+    async findOrCreateProfile (req, res, proceed) {
+      if (req.headers.extensionUserId) {
+        try {
+          let profile = await Profile.findOne({extensionUserId: req.headers.extensionUserId})
+          if (!profile) {
+            profile = await Profile.create({extensionUserId: req.headers.extensionUserId}).fetch()
+          }
+          req.profile = profile
+        } catch(e) {
+          return proceed(e)
+        }
+      }
+      return proceed()
+    }
+  }
+}

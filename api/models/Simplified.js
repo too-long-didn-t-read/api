@@ -13,7 +13,8 @@ module.exports = {
     },
     severity: {
       type: 'number',
-      isIn: [0, 1, 2, 3, 4, 5]
+      isIn: [0, 1, 2, 3, 4, 5],
+      defaultsTo: 0
     },
     name: {
       type: 'string',
@@ -33,8 +34,30 @@ module.exports = {
       type: 'number',
       defaultsTo: 0
     },
+    /**
+     * Associations
+     */
     tldr: {
-      model: 'tldr'
+      model: 'tldr',
+      required: true
+    },
+    votes: {
+      collection: 'vote',
+      via: 'simplified'
+    },
+    votedBy: {
+      collection: 'user',
+      via: 'simplified',
+      through: 'vote'
+    },
+    changes: {
+      collection: 'change',
+      via: 'simplified'
+    },
+    changesSuggestedBy: {
+      collection: 'user',
+      via: 'simplified',
+      through: 'change'
     }
   }
 }
