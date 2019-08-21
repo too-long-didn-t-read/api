@@ -47,8 +47,8 @@ module.exports = {
     /**
      * Associations
      */
-    simplifieds: {
-      collection: 'simplified',
+    clauses: {
+      collection: 'clause',
       via: 'tldr'
     },
     changes: {

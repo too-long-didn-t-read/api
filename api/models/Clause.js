@@ -1,5 +1,5 @@
 /**
- * Simplified.js
+ * Clause.js
  *
  * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
@@ -43,20 +43,20 @@ module.exports = {
     },
     votes: {
       collection: 'vote',
-      via: 'simplified'
+      via: 'clause'
     },
     votedBy: {
       collection: 'user',
-      via: 'simplified',
+      via: 'clause',
       through: 'vote'
     },
     changes: {
       collection: 'change',
-      via: 'simplified'
+      via: 'clause'
     },
     changesSuggestedBy: {
       collection: 'user',
-      via: 'simplified',
+      via: 'clause',
       through: 'change'
     }
   }

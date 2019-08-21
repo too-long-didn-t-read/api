@@ -5,11 +5,13 @@
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
 
+const crypto = require('crypto')
+
 module.exports = {
   attributes: {
     username: {
       type: 'string',
-      unique: true,
+      // unique: true,
       // sails disc only
       required: true
     },
@@ -49,16 +51,12 @@ module.exports = {
     /**
      * Associations
      */
-    profiles: {
-      collection: 'profile',
-      via: 'user'
-    },
     votes: {
       collection: 'vote',
       via: 'user'
     },
-    votedSimplified: {
-      collection: 'simplified',
+    votedclause: {
+      collection: 'clause',
       via: 'user',
       through: 'vote'
     },
@@ -70,8 +68,8 @@ module.exports = {
       collection: 'change',
       via: 'commitedBy'
     },
-    changesOnSimplified: {
-      collection: 'simplified',
+    changesOnclause: {
+      collection: 'clause',
       via: 'user',
       through: 'change'
     },
@@ -79,6 +77,54 @@ module.exports = {
       collection: 'tldr',
       via: 'user',
       through: 'change'
+    }
+  },
+  async beforeCreate(user, next) {
+    try {
+      user.confirmationString = crypto.randomBytes(18).toString('base64')
+    } catch (e) {
+      return next(e)
+    }
+    user.confirmationExpireOn = new Date().valueOf() + (sails.config.custom.verificationGrace || 86400000)
+    return next()
+  },
+  customToJSON() {
+    return _.omit(this, ['password', 'salt', 'confirmationString', 'resetPasswordToken', 'resetPasswordExpireOn', 'confirmationExpireOn'])
+  },
+  protect(user) {
+    if (user.password) {
+      let md5 = crypto.createHash('md5')
+      md5.update(new Date().toString() + (Math.round(Math.random() * 200000000) - 100000000))
+      user.salt = md5.digest('hex')
+      let hmac = crypto.createHmac('sha512', user.salt)
+      hmac.update(user.password)
+      user.password = hmac.digest('hex')
+      return user
+    }
+    throw E.noPassword(user)
+  },
+  validate(user, password) {
+    let hmac = crypto.createHmac('sha512', user.salt)
+    hmac.update(password)
+    return user.password === hmac.digest('hex')
+  },
+  async sendConfirmationMail(user) {
+    try {
+      await sails.helpers.sendMail(
+        user.email,
+        'Confirm your account',
+        'confirm',
+        {
+          username: user.username,
+          confirmationString: user.confirmationString,
+          confirmationExpireOn: user.confirmationExpireOn
+        }
+      ).tolerate('errorSending', (err) => {
+        sails.log.warn(err)
+      })
+      return user
+    } catch (e) {
+      throw e
     }
   }
 }

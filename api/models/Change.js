@@ -24,8 +24,8 @@ module.exports = {
       model: 'user',
       required: true
     },
-    simplified: {
-      model: 'simplified',
+    clause: {
+      model: 'clause',
       required: false
     },
     tldr: {

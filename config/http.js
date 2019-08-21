@@ -35,7 +35,6 @@ module.exports.http = {
       'session',
       'bodyParser',
       'compress',
-      'findOrCreateProfile',
       'passportInitialize',
       'passportSession',
       'router',
@@ -44,20 +43,6 @@ module.exports.http = {
     ],
 
     passportInitialize: passport.initialize(),
-    passportSession: passport.session(),
-    async findOrCreateProfile (req, res, proceed) {
-      if (req.headers.extensionUserId) {
-        try {
-          let profile = await Profile.findOne({extensionUserId: req.headers.extensionUserId})
-          if (!profile) {
-            profile = await Profile.create({extensionUserId: req.headers.extensionUserId}).fetch()
-          }
-          req.profile = profile
-        } catch(e) {
-          return proceed(e)
-        }
-      }
-      return proceed()
-    }
+    passportSession: passport.session()
   }
 }

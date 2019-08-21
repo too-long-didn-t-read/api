@@ -19,5 +19,11 @@ module.exports.custom = {
   // mailgunSecret: 'key-testkeyb183848139913858e8abd9a3',
   // stripeSecret: 'sk_test_Zzd814nldl91104qor5911gjald',
   // …
-
-};
+  baseProtocole: 'http',
+  baseHostname: 'localhost:1337',
+  verificationGrace: 86400000, // 1 day
+  transport: 'smtp',
+  email: {
+    main: 'bashz'
+  }
+}

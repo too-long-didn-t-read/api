@@ -12,28 +12,23 @@ const LocalStrategy = require('passport-local').Strategy
  */
 
 module.exports.bootstrap = async function(done) {
-  const auth = (extensionUserId, password) => {
+  global['E'] = sails.config.errors
+
+  const auth = (email, password) => {
     return new Promise(async (resolve, reject) => {
       let user = null
-      let profile = null
-      let role = {policy: false}
       try {
-        profile = await Profile.findOne({extensionUserId})
-        user = await User.findOne({id: profile.user})
+        user = await User.findOne({ email })
       } catch (e) {
-        return reject(e)
+        return reject(E.error(e))
       }
       if (!user) {
-        return reject(new Error('bad credentials'))
+        return reject(E.badCredentials('bad credentials', {cause: `No user was found with the email ${email}`}))
       }
-      if (password) {
-        if (!User.validatePassword(user, password)) {
-          return reject(new Error('bad credentials'))
-        } else {
-          role.policy = true
-        }
+      if (!User.validate(user, password)) {
+        return reject(E.badCredentials('bad credentials', {cause: `Wrong password for email ${email}`}))
       }
-      return resolve(Object.assign({}, user, profile, role))
+      return resolve(user)
     })
   }
 
@@ -46,12 +41,12 @@ module.exports.bootstrap = async function(done) {
   })
 
   passport.use(new LocalStrategy({
-    usernameField: 'extensionUserId',
+    usernameField: 'email',
     passwordField: 'password'
-  }, async (extensionUserId, password, done) => {
+  }, async (email, password, done) => {
     let user = null
     try {
-      user = await auth(extensionUserId, password)
+      user = await auth(email, password)
     } catch(err) {
       return done(err, null)
     }

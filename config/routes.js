@@ -9,6 +9,8 @@
  */
 
 module.exports.routes = {
-
-
-};
+  'post /auth/register': 'user.register',
+  'post /auth/login': 'auth.local.index',
+  'get /auth/logout': 'auth.logout',
+  'post /vote': 'vote.vote'
+}
